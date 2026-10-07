@@ -51,10 +51,18 @@ if timesheet_file is not None:
     employees = load_employees()
     payroll = build_payroll(timesheet, employees)
 
-    payroll_date = payroll['payroll_date'].iloc[0] if 'payroll_date' in payroll.columns and not payroll.empty else "unknown"
+    payroll_date = (
+    payroll['payroll_date'].iloc[0]
+    if 'payroll_date' in payroll.columns and not payroll.empty
+    else "unknown"
+)
     st.write(f"Pay Period: {payroll_date}")
- 
-    st.metric("Employees paid", payroll.loc[payroll['pay_type'] != "unmatched", 'employee_id'].nunique())
+    st.metric(
+    "Employees paid",
+    payroll.loc[
+        payroll['pay_type'] != "unmatched",
+        'employee_id'
+    ].nunique())
     st.metric("Total hours", round(payroll['hours_worked'].sum(), 2))
     st.metric("Total gross pay", f"${payroll['gross_pay'].sum():,.2f}")
     st.metric("Overtime weeks", payroll[payroll['pay_type'] == "overtime"].shape[0])
