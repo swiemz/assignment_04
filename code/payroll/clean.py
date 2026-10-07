@@ -48,7 +48,6 @@ def parse_hours(value) -> float:
     - The mistake people make: forgetting the `/ 60`. `"45m"` is three quarters
       of an hour, not 45 hours, and `test_parse_hours` will tell you.
     """
-    # TODO: your code here
     if not isinstance(value, str):
         if pd.isna(value):
             return 0.0
