@@ -49,7 +49,35 @@ def parse_hours(value) -> float:
       of an hour, not 45 hours, and `test_parse_hours` will tell you.
     """
     # TODO: your code here
-    pass
+    if not isinstance(value, str):
+        if pd.isna(value):
+            return 0.0
+        try:
+            return float(value)
+        except (ValueError, TypeError):
+            return 0.0
+    text = value.strip()
+    if text == "":
+        return 0.0
+    if "h" not in text and "m" not in text:
+        try:
+            return float(text)
+        except ValueError:
+            return 0.0
+
+    hours = 0.0
+    for word in text.split():
+        try:
+            if word.endswith("h"):
+                hours += float(word[:-1])
+            elif word.endswith("m"):
+                hours += float(word[:-1]) / 60
+            else:
+                return 0.0
+        except ValueError:
+            return 0.0
+
+    return hours
 
 
 def clean_currency(value) -> float:
@@ -72,9 +100,19 @@ def clean_currency(value) -> float:
     - You wrote this function in Assignment 02. It is the same function. That
       is not an accident — cleaning currency is something every pipeline does.
     """
-    # TODO: your code here
-    pass
+    if not isinstance(value, str):
+        if pd.isna(value):  # handles NaN, None etc.
+            return 0.0
+        try:
+            return float(value)
+        except (ValueError, TypeError):
+            return 0.0
 
+    cleaned = value.replace('$', '').replace(',', '').strip()
+    try:
+        return float(cleaned)
+    except ValueError:
+        return 0.0
 
 def add_hours_worked(timesheet: pd.DataFrame) -> pd.DataFrame:
     """Return a copy of the timesheet with one new column, `hours_worked` (float).
@@ -91,8 +129,9 @@ def add_hours_worked(timesheet: pd.DataFrame) -> pd.DataFrame:
     - `return out`. Three lines. Every pipeline step in this assignment has this
       shape: copy, add a column, return.
     """
-    # TODO: your code here
-    pass
+    out = timesheet.copy()
+    out["hours_worked"] = out["hours"].apply(parse_hours)
+    return out
 
 
 def add_hourly_rate(employees: pd.DataFrame) -> pd.DataFrame:
@@ -104,8 +143,9 @@ def add_hourly_rate(employees: pd.DataFrame) -> pd.DataFrame:
     How to build it: the same three lines as `add_hours_worked`, with the other
     function and the other column names.
     """
-    # TODO: your code here
-    pass
+    out = employees.copy()
+    out["hourly_rate_usd"] = out["hourly_rate"].apply(clean_currency)
+    return out
 
 
 if __name__ == "__main__":

@@ -38,3 +38,42 @@ Test it: pytest tests/test_pipeline.py -k app
 #
 # What the page does NOT do: arithmetic on rows, cleaning, merging. If you find
 # yourself writing a loop or an apply here, that logic belongs in the package.
+
+import pandas as pd
+import streamlit as st
+from payroll import load_timesheet, load_employees, build_payroll, payroll_export
+
+st.title("Salt City Coffee — Weekly Payroll")
+
+timesheet_file = st.file_uploader("Upload the week's timesheet CSV", type=["csv"])
+
+if timesheet_file is not None:
+    timesheet = load_timesheet(timesheet_file)
+    employees = load_employees()
+    payroll = build_payroll(timesheet, employees)
+
+    payroll_date = payroll['payroll_date'].iloc[0] if 'payroll_date' in payroll.columns and not payroll.empty else "unknown"
+    st.write(f"Pay Period: {payroll_date}")
+ 
+    st.metric("Employees paid", payroll.loc[payroll['pay_type'] != "unmatched", 'employee_id'].nunique())
+    st.metric("Total hours", round(payroll['hours_worked'].sum(), 2))
+    st.metric("Total gross pay", f"${payroll['gross_pay'].sum():,.2f}")
+    st.metric("Overtime weeks", payroll[payroll['pay_type'] == "overtime"].shape[0])
+    unmatched = payroll[payroll['pay_type'] == "unmatched"]
+    if not unmatched.empty:
+        unmatched_ids = unmatched['employee_id'].unique()
+        st.warning(f"Unmatched employee IDs: {', '.join(unmatched_ids)}")
+    else:
+        st.success("No unmatched employees found.")
+
+    st.dataframe(payroll)
+
+    export_df = payroll_export(payroll)
+    payroll_date = payroll['payroll_date'].iloc[0] if not payroll.empty else "unknown"
+    csv = export_df.to_csv(index=False)
+    st.download_button(
+        label="Download payroll CSV",
+        data=csv,
+        file_name=f"payroll_{payroll_date}.csv",
+        mime="text/csv"
+    )
