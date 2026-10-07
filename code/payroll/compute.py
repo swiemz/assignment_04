@@ -60,6 +60,7 @@ def classify_pay(hours: float, rate: float) -> str:
         return "overtime"
     return "regular"
 
+
 def add_gross_pay(payroll: pd.DataFrame) -> pd.DataFrame:
     """Return a copy with one new column, `gross_pay`: `calc_gross_pay` for every row.
 
@@ -75,6 +76,7 @@ def add_gross_pay(payroll: pd.DataFrame) -> pd.DataFrame:
     )
     return out
 
+
 def add_pay_type(payroll: pd.DataFrame) -> pd.DataFrame:
     """Return a copy with one new column, `pay_type`: `classify_pay` for every row."""
     out = payroll.copy()
@@ -83,7 +85,6 @@ def add_pay_type(payroll: pd.DataFrame) -> pd.DataFrame:
         axis=1
     )
     return out
-
 
 
 def build_payroll(timesheet: pd.DataFrame, employees: pd.DataFrame) -> pd.DataFrame:
@@ -103,6 +104,7 @@ def build_payroll(timesheet: pd.DataFrame, employees: pd.DataFrame) -> pd.DataFr
     final_payroll = add_pay_type(with_gross)
 
     return final_payroll
+
 
 def payroll_export(payroll: pd.DataFrame) -> pd.DataFrame:
     """The file the online payroll provider imports — a NEW frame, not a renamed one.
